@@ -1,0 +1,269 @@
+[
+    {
+        "id": "fa84384f998d5e20",
+        "type": "tab",
+        "label": "Flow 2",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "d2d77bbea036ecd2",
+        "type": "mqtt in",
+        "z": "fa84384f998d5e20",
+        "name": "hwldnq",
+        "topic": "android/gps",
+        "qos": "2",
+        "datatype": "auto-detect",
+        "broker": "1faeebe850955272",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 125,
+        "y": 340,
+        "wires": [
+            [
+                "7de2fe31fb2f21f7"
+            ]
+        ],
+        "l": false
+    },
+    {
+        "id": "73bffbbaf8e9f732",
+        "type": "debug",
+        "z": "fa84384f998d5e20",
+        "name": "debug 2",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1100,
+        "y": 360,
+        "wires": []
+    },
+    {
+        "id": "50a7d07d0e62e6ae",
+        "type": "function",
+        "z": "fa84384f998d5e20",
+        "name": "function 2",
+        "func": "// Extraction des données du message MQTT\nvar payload = msg.payload;\nvar latitude = payload.latitude;\nvar longitude = payload.longitude;\nvar name = payload.deviceName;\n\n// Création du nouvel objet au format souhaité\nif (latitude !== undefined && longitude !== undefined) {\n    var newPayload = {\n        \"name\": name,\n        \"lat\": latitude,\n        \"lon\": longitude,\n        \"icon\": \"male\"\n    };\n\n    // Mettre à jour le msg.payload avec le nouvel objet\n    msg.payload = newPayload;\n    msg.payload.action = \"send\";\n\n\n}\n\n// Renvoyer le message\nreturn msg;\n",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 600,
+        "y": 280,
+        "wires": [
+            [
+                "91a61d6cbc50c804",
+                "2d2375e0ee70eacd"
+            ]
+        ]
+    },
+    {
+        "id": "36b36cab5141f96b",
+        "type": "mysql",
+        "z": "fa84384f998d5e20",
+        "mydb": "eba2028b78185f00",
+        "name": "LocoHistorique",
+        "x": 1000,
+        "y": 100,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "91a61d6cbc50c804",
+        "type": "function",
+        "z": "fa84384f998d5e20",
+        "name": "function 3",
+        "func": "msg.topic = \"INSERT INTO LocoHistorique (name, lat, lon, icon) VALUES (?, ?, ?, ?)\";\nmsg.payload = [msg.payload.name, msg.payload.lat, msg.payload.lon, msg.payload.icon];\nreturn msg;\n",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 800,
+        "y": 180,
+        "wires": [
+            [
+                "36b36cab5141f96b"
+            ]
+        ]
+    },
+    {
+        "id": "7de2fe31fb2f21f7",
+        "type": "json",
+        "z": "fa84384f998d5e20",
+        "name": "msg.payload",
+        "property": "payload",
+        "action": "obj",
+        "pretty": false,
+        "x": 330,
+        "y": 280,
+        "wires": [
+            [
+                "50a7d07d0e62e6ae"
+            ]
+        ]
+    },
+    {
+        "id": "d96b95c74849c7ec",
+        "type": "ui_worldmap",
+        "z": "fa84384f998d5e20",
+        "group": "4607b83c29d9194b",
+        "order": 2,
+        "width": 0,
+        "height": 0,
+        "name": "",
+        "lat": "",
+        "lon": "",
+        "zoom": "",
+        "layer": "OSMC",
+        "cluster": "",
+        "maxage": "",
+        "usermenu": "hide",
+        "layers": "show",
+        "panit": "false",
+        "panlock": "false",
+        "zoomlock": "false",
+        "hiderightclick": "true",
+        "coords": "deg",
+        "showgrid": "false",
+        "showruler": "false",
+        "allowFileDrop": "false",
+        "path": "/worldmap",
+        "overlist": "DR,CO,RA,DN,HM",
+        "maplist": "OSMG,OSMC,EsriC,EsriS,EsriT,EsriDG,UKOS",
+        "mapname": "",
+        "mapurl": "",
+        "mapopt": "",
+        "mapwms": false,
+        "x": 1020,
+        "y": 220,
+        "wires": []
+    },
+    {
+        "id": "084c85f348248c15",
+        "type": "ui_audio",
+        "z": "fa84384f998d5e20",
+        "name": "",
+        "group": "4607b83c29d9194b",
+        "voice": "Microsoft Paul - French (France)",
+        "always": "",
+        "x": 1100,
+        "y": 520,
+        "wires": []
+    },
+    {
+        "id": "e3741a209bb08804",
+        "type": "function",
+        "z": "fa84384f998d5e20",
+        "name": "function 4",
+        "func": "var alertMessage = \"\";\nif (msg.location.inarea == true) {\n    alertMessage = \"The device \" + msg.payload.name + \" has entered the geofencing zone.\";\n} else if (msg.location.inarea == false) {\n    alertMessage = \"The device \" + msg.payload.name + \" has exited the geofencing zone.\";\n}\n\nmsg.payload = alertMessage;\nreturn msg;\n",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 840,
+        "y": 460,
+        "wires": [
+            [
+                "084c85f348248c15",
+                "73bffbbaf8e9f732"
+            ]
+        ]
+    },
+    {
+        "id": "2d2375e0ee70eacd",
+        "type": "geofence",
+        "z": "fa84384f998d5e20",
+        "name": "",
+        "mode": "circle",
+        "inside": "both",
+        "rad": 6052.221972422444,
+        "points": [],
+        "centre": {
+            "latitude": 33.990057134487714,
+            "longitude": -6.842079162597656
+        },
+        "floor": "",
+        "ceiling": "",
+        "worldmap": true,
+        "outputs": 2,
+        "x": 820,
+        "y": 300,
+        "wires": [
+            [
+                "d96b95c74849c7ec",
+                "e3741a209bb08804"
+            ],
+            [
+                "d96b95c74849c7ec"
+            ]
+        ]
+    },
+    {
+        "id": "1faeebe850955272",
+        "type": "mqtt-broker",
+        "name": "",
+        "broker": "192.168.43.84",
+        "port": "1883",
+        "clientid": "",
+        "autoConnect": true,
+        "usetls": false,
+        "protocolVersion": "4",
+        "keepalive": "60",
+        "cleansession": true,
+        "birthTopic": "",
+        "birthQos": "0",
+        "birthPayload": "",
+        "birthMsg": {},
+        "closeTopic": "",
+        "closeQos": "0",
+        "closePayload": "",
+        "closeMsg": {},
+        "willTopic": "",
+        "willQos": "0",
+        "willPayload": "",
+        "willMsg": {},
+        "userProps": "",
+        "sessionExpiry": ""
+    },
+    {
+        "id": "eba2028b78185f00",
+        "type": "MySQLdatabase",
+        "name": "",
+        "host": "127.0.0.1",
+        "port": "3306",
+        "db": "historique_des_positions",
+        "tz": "",
+        "charset": "UTF8"
+    },
+    {
+        "id": "4607b83c29d9194b",
+        "type": "ui_group",
+        "name": "map",
+        "tab": "b6df8421a80707fc",
+        "order": 1,
+        "disp": true,
+        "width": "6",
+        "collapse": false,
+        "className": ""
+    },
+    {
+        "id": "b6df8421a80707fc",
+        "type": "ui_tab",
+        "name": "Home",
+        "icon": "dashboard",
+        "disabled": false,
+        "hidden": false
+    }
+]
